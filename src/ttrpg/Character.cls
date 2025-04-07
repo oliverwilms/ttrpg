@@ -18,6 +18,32 @@ ClassMethod GetCharByName(name As %String) As TTRPG.Character
     Quit character
 }
 
+ClassMethod GetCharacterByName(charName As %String) As %DynamicObject
+{
+   // Create a new dynamic object to store the results
+        Set results = {}
+
+        set char = ##class(TTRPG.Character).GetCharByName(charName)
+
+        if char {
+           set charInfo = {}
+            set charInfo.Name = char.Name
+            set charInfo.Class = char.Class
+            set charInfo.Race = char.Race
+            set charInfo.Level = char.Level
+            set results.Character = charInfo
+            Set results.Status = "success"
+        }
+        // If no character was found, set an error message in the results object
+        else {
+            Set results.Status = "error"
+            Set results.Message = "No characters found"
+        }
+
+        // Return the results object
+        Quit results
+}
+
 ClassMethod PostCharacter(name As %String, class As %String, race As %String, level As %String) As %DynamicObject
 {
     set results = {} // create the return %DynamicObject
