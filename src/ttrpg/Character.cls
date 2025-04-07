@@ -44,6 +44,40 @@ ClassMethod GetCharacterByName(charName As %String) As %DynamicObject
         Quit results
 }
 
+ClassMethod GetCharacterList() As %DynamicObject
+{
+    // Create a new dynamic object to store the results
+        Set results = {}
+        set query = "SELECT Name, Class, Race, ""Level"" FROM TTRPG.""Character"""
+        set tStatement = ##class(%SQL.Statement).%New()
+        set qstatus = tStatement.%Prepare(query)
+        if qstatus '= 1 { Do ##class(TTRPG.impl).%WriteResponse("Error: " _ $SYSTEM.Status.DisplayError(qstatus)) }
+        set rset = tStatement.%Execute()
+        Set characterList = []
+        while rset.%Next(){
+            Set characterInfo = {}
+            Set characterInfo.Name = rset.Name
+            set characterInfo.Race = rset.Race
+            Set characterInfo.Class = rset.Class
+            Set characterInfo.Level = rset.Level 
+
+            Do characterList.%Push(characterInfo)
+
+        }
+        if (rset.%SQLCODE < 0) {write "%Next failed:", !, "SQLCODE ", rset.%SQLCODE, ": ", rset.%Message quit}
+
+        set totalCount = rset.%ROWCOUNT
+
+            // Set the status, totalCount, and characterList properties in the results object
+            Set results.Status = "success"
+            Set results.TotalCount = totalCount
+            Set results.CharacterList = characterList
+
+
+        // Return the results object
+        Quit results
+}
+
 ClassMethod PostCharacter(name As %String, class As %String, race As %String, level As %String) As %DynamicObject
 {
     set results = {} // create the return %DynamicObject
